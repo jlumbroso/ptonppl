@@ -1,2 +1,2 @@
 # ptonppl
-An integration package to deal with Princeton campus users.
+An integration package to lookup Princeton campus users.
