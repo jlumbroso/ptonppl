@@ -1,5 +1,6 @@
 
 import distutils.version
+import enum
 import typing
 
 import ldap
@@ -82,9 +83,41 @@ ATTRIBUTES_FULL: typing.Set[str] = {
 
 # Mappings with Princeton terminology
 
-ATTRIBUTE_MAPPING = {
+LDAP_ATTRIBUTE_MAPPING = {
     "puid": "universityid",
     "netid": "uid",
     "email": "mail",
     "alias": "mail",
 }
+
+
+# Web filter operations
+
+class WebdirFilterOps(enum.Enum):
+    CONTAINS = "c"
+    IS = "eq"
+    IS_NOT = "neq"
+    BEGINS = "b"
+    ENDS_WITH = "e"
+
+
+class WebdirFields(enum.Enum):
+    FIRST_NAME = "f"
+    LAST_NAME = "l"
+    TITLE = "t"
+    DEPARTMENT = "d"
+    ADDRESS = "a"
+    PHONE = "p"
+    FAX = "fa"
+    NETID = "i"
+    EMAIL = "e"
+
+
+WEBDIR_FIELD_MAPPING = {
+    "netid": WebdirFields.NETID,
+    "email": WebdirFields.EMAIL,
+    "alias": WebdirFields.EMAIL,
+}
+
+
+WEBDIR_EMAIL_FROM_NETID = "{}@princeton.edu"

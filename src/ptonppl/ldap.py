@@ -52,7 +52,7 @@ def connect(
 connect(reconnect=True)
 
 
-# Determine attributes that are available
+# Determine attributes that are available (on a sample of 100 results)
 
 def get_attributes() -> typing.Set[str]:
     msg_id = _server.search_ext(
