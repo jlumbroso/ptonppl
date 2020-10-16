@@ -27,6 +27,7 @@ classifiers = [
 [tool.poetry.dependencies]
 python = "^3.6"
 python-ldap = "^3.3.1"
+backoff = "^1.10.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
