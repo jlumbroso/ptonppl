@@ -201,10 +201,16 @@ class LdapPtonPerson(ptonppl.abstract.AbstractPtonPerson):
     def __init__(self, ldap_result: typing.Dict[str, typing.Any]):
         self._original = ldap_result
 
-        self._puid = _grab_attr(self._original, ptonppl.constants.ATTRIBUTE_MAPPING["puid"])
-        self._netid = _grab_attr(self._original, ptonppl.constants.ATTRIBUTE_MAPPING["netid"])
-        self._email = _grab_attr(self._original, ptonppl.constants.ATTRIBUTE_MAPPING["email"])
-        self._alias = _grab_attr(self._original, ptonppl.constants.ATTRIBUTE_MAPPING["alias"])
+        self._puid = _grab_attr(self._original, ptonppl.constants.LDAP_ATTRIBUTE_MAPPING["puid"])
+        self._netid = _grab_attr(self._original, ptonppl.constants.LDAP_ATTRIBUTE_MAPPING["netid"])
+        self._email = _grab_attr(self._original, ptonppl.constants.LDAP_ATTRIBUTE_MAPPING["email"])
+        self._alias = _grab_attr(self._original, ptonppl.constants.LDAP_ATTRIBUTE_MAPPING["alias"])
+        self._pustatus = _grab_attr(self._original, "pustatus")
+
+        if self._email is None:
+            val = _grab_attr(self._original, "eduPersonPrincipalName")
+            if "@" in val:
+                self._email = val
 
         if self._alias is not None:
             self._alias = self._alias.split("@")[0]

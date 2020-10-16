@@ -15,6 +15,7 @@ class AbstractPtonPerson:
     _netid: typing.Optional[str] = None
     _alias: typing.Optional[str] = None
     _email: typing.Optional[str] = None
+    _pustatus: typing.Optional[str] = None
 
     _original: typing.Optional[typing.Any] = None
 
@@ -35,6 +36,10 @@ class AbstractPtonPerson:
         return self._email
 
     @property
+    def status(self) -> typing.Optional[str]:
+        return self._pustatus
+
+    @property
     def has_alias(self) -> bool:
         return self._alias is not None and self._alias != self._netid
 
@@ -47,8 +52,12 @@ class AbstractPtonPerson:
             ("netid", self._netid),
             ("alias", self._alias),
             ("email", self._email),
+            ("status", self._pustatus),
         ]:
             if val is not None:
                 ret[name] = val
+
+        if "alias" in ret and "netid" in ret and ret["alias"] == ret["netid"]:
+            del ret["alias"]
 
         return ret
