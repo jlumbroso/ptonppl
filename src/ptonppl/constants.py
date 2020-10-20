@@ -162,3 +162,7 @@ LDAP_QUERY_PUID = "universityid={}"
 LDAP_DEFAULT_PROXY_URL = "https://edutools.cs.princeton.edu/integration/ldap.cgi"
 
 PARSED_LDAP_KEY = "uid"
+
+
+# Output formats
+OUTPUT_CSV_HEADER = ["puid", "netid", "email", "alias", "type", "name"]
