@@ -42,6 +42,11 @@ def search(
     attempts += [lambda val: ptonppl.ldapcmd.search_one(
         ldap_field="mail", ldap_value=ptonppl.constants.WEBDIR_EMAIL_FROM_NETID.format(val))]
 
+    # heuristic for PUIDs
+    if value.isdigit() and len(value) > 6:
+        attempts += [lambda val: ptonppl.ldap.search_one(ldap_field="universityid", ldap_value=val)]
+        attempts += [lambda val: ptonppl.ldapcmd.search_one(ldap_field="universityid", ldap_value=val)]
+
     # reestablish connection
     ptonppl.ldap.connect(reconnect=True)
 

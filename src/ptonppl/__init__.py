@@ -1,1 +1,12 @@
-__version__ = '0.0.2'
+
+from ptonppl.control import search
+from ptonppl.abstract import AbstractPtonPerson
+
+__author__ = "Jérémie Lumbroso <lumbroso@cs.princeton.edu>"
+
+__version__ = "0.0.3"
+
+__all__ = [
+    "search",
+    "AbstractPtonPerson",
+]
