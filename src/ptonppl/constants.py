@@ -130,6 +130,16 @@ ID_AUTHORIZED_CHARS = "abcdefghijklmnopqrstuvwxyz.0123456789_"
 
 LDAP_IGNORE_FIELDS = ["search", "result"]
 
-LDAP_CMD_PATTERN = "{{cmd}} -x -h {host} -u -b {base_dn} \"{{query}}\""
+LDAP_CMD_PATTERN = "{{cmd}} -x -h {host} -u -b {base_dn} \"{{query}}\"".format(
+    host=LDAP_HOSTNAME,
+    base_dn=LDAP_BASE_DN,
+)
 
 LDAP_DEFAULT_CMD = "ldapsearch"
+
+LDAP_QUERY_NETID = "uid={}"
+
+LDAP_QUERY_EMAIL = "mail={}"
+
+LDAP_QUERY_PUID = "universityid={}"
+
