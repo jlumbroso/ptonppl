@@ -8,6 +8,13 @@ import ptonppl.ldapcmd
 import ptonppl.webdir
 
 
+__author__ = "Jérémie Lumbroso <lumbroso@cs.princeton.edu>"
+
+__all__ = [
+    "search",
+]
+
+
 def search(
         value: str,
 ) -> typing.Optional[ptonppl.abstract.AbstractPtonPerson]:
@@ -35,6 +42,7 @@ def search(
     attempts += [lambda val: ptonppl.ldapcmd.search_one(
         ldap_field="mail", ldap_value=ptonppl.constants.WEBDIR_EMAIL_FROM_NETID.format(val))]
 
+    # reestablish connection
     ptonppl.ldap.connect(reconnect=True)
 
     for f in attempts:

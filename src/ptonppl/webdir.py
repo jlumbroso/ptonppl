@@ -1,5 +1,5 @@
+
 import typing
-import urllib.parse
 
 import requests
 import bs4
@@ -11,15 +11,9 @@ import ptonppl.ldap
 __author__ = "Jérémie Lumbroso <lumbroso@cs.princeton.edu>"
 
 __all__ = [
+    "search_one"
 ]
 
-
-# URL to build queries to search the campus directory by email address equality
-# NOTE: had to switch to "begins with" because of bug in search
-
-# PRINCETON_CAMPUS_DIRECTORY_EMAIL_SEARCH_URL = "https://www.princeton.edu/search/people-advanced?e={}&ef=eq"
-PRINCETON_CAMPUS_DIRECTORY_EMAIL_SEARCH_URL = "https://www.princeton.edu/search/people-advanced?e={}&ef=b"
-PRINCETON_CAMPUS_DIRECTORY_NETID_SEARCH_URL = "https://www.princeton.edu/search/people-advanced?i={}&if=eq"
 
 # Hard-coded constants that are required to scrape the web page
 
@@ -100,6 +94,9 @@ def _parse_result(obj: bs4.element.Tag) -> typing.Dict[str, typing.Any]:
 
     r = dict()
 
+    # NOTE: should remove all the hardcoded constants from below perhaps?
+    # or move to constants module
+
     for header_name, field_name in [
         ("NetID", "uid"),
         ("University ID", "universityid"),
@@ -141,14 +138,14 @@ def search_one(
 ) -> typing.Optional[ptonppl.ldap.LdapPtonPerson]:
 
     if field.lower() in ["mail", "email"]:
-        url_pattern = PRINCETON_CAMPUS_DIRECTORY_EMAIL_SEARCH_URL
+        url_pattern = ptonppl.constants.PRINCETON_CAMPUS_DIRECTORY_EMAIL_SEARCH_URL
 
     elif field.lower() in ["alias"]:
-        url_pattern = PRINCETON_CAMPUS_DIRECTORY_EMAIL_SEARCH_URL
+        url_pattern = ptonppl.constants.PRINCETON_CAMPUS_DIRECTORY_EMAIL_SEARCH_URL
         value = ptonppl.constants.WEBDIR_EMAIL_FROM_NETID.format(value)
 
     elif field.lower() in ["netid"]:
-        url_pattern = PRINCETON_CAMPUS_DIRECTORY_NETID_SEARCH_URL
+        url_pattern = ptonppl.constants.PRINCETON_CAMPUS_DIRECTORY_NETID_SEARCH_URL
 
     else:
         raise ValueError(
@@ -164,55 +161,3 @@ def search_one(
 
     if results is not None and len(results) > 0:
         return ptonppl.ldap.LdapPtonPerson(ldap_result=results[0])
-
-
-# def find_netid_from_princeton_email(princeton_email: str, fast: bool = False) -> typing.Optional[str]:
-#     """
-#     Returns the NetID of a campus member, given a valid Princeton email; this
-#     places a query with the central campus directory as available publicly from:
-#     `https://search.princeton.edu`.
-#     :param princeton_email: A valid email, using the `@princeton.edu` domain.
-#     :param fast: Determines whether to use a heuristic to avoid doing too many requests;
-#     unless speed is a requirement, should be set to `False`.
-#     :return: The NetID of the person whose email was provided as an argument.
-#     """
-#
-#     # hack to deal with hits that somehow don't work
-#     princeton_email = princeton_email.lower()
-#     if princeton_email in MANUAL_NETID_FROM_PRINCETON_EMAIL:
-#         return MANUAL_NETID_FROM_PRINCETON_EMAIL[princeton_email]
-#
-#     # this is a heuristic that can save a lot of lookups (but may not
-#     # work in some unfortunate cases)
-#     email_prefix = princeton_email.split("@")[0].lower()
-#     if fast:
-#         if _is_likely_netid(email_prefix):
-#             return email_prefix
-#
-#     # NOTE: maybe this heuristic is too much?
-#     best_guess = email_prefix
-#
-#     #url = PRINCETON_CAMPUS_DIRECTORY_EMAIL_SEARCH_URL.format(
-#     #    urllib.parse.quote(princeton_email))
-#     # NOTE: attempted fix to handle @cs.princeton.edu addresses better
-#     url = PRINCETON_CAMPUS_DIRECTORY_EMAIL_SEARCH_URL.format(
-#         email_prefix + urllib.parse.quote("@"))
-#
-#     raw_items = fetch_campus_directory_results(url=url)
-#
-#     if raw_items is None or len(raw_items) == 0:
-#         return best_guess
-#
-#     if len(raw_items) > 1:
-#         raise Exception("should not have more than one result")
-#
-#     first = raw_items[0]
-#     tag_netid_label = first.find("h4", string=STR_NETID)
-#     if tag_netid_label is None:
-#         return best_guess
-#
-#     tag_netid = tag_netid_label.find_next_sibling("span", attrs={"class": CLASS_RESULTS_DETAILS})
-#     if tag_netid is None:
-#         return best_guess
-#
-#     return tag_netid.text.strip().lower()

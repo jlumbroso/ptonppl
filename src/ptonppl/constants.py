@@ -98,7 +98,7 @@ class WebdirFilterOps(enum.Enum):
     CONTAINS = "c"
     IS = "eq"
     IS_NOT = "neq"
-    BEGINS = "b"
+    BEGINS_WITH = "b"
     ENDS_WITH = "e"
 
 
@@ -122,6 +122,22 @@ WEBDIR_FIELD_MAPPING = {
 
 
 WEBDIR_EMAIL_FROM_NETID = "{}@princeton.edu"
+
+PRINCETON_CAMPUS_DIRECTORY_SEARCH_URL = \
+    "https://www.princeton.edu/search/people-advanced?{field}={{}}&{field}f={filter_op}"
+
+
+# URL to build queries to search the campus directory by email address equality
+# NOTE: for email, had to switch to "begins with" because of bug in search
+
+PRINCETON_CAMPUS_DIRECTORY_EMAIL_SEARCH_URL = PRINCETON_CAMPUS_DIRECTORY_SEARCH_URL.format(
+    field=WebdirFields.EMAIL.value,
+    filter_op=WebdirFilterOps.BEGINS_WITH.value,
+)
+PRINCETON_CAMPUS_DIRECTORY_NETID_SEARCH_URL = PRINCETON_CAMPUS_DIRECTORY_SEARCH_URL.format(
+    field=WebdirFields.NETID.value,
+    filter_op=WebdirFilterOps.IS.value,
+)
 
 
 # LDAP CMD constants
