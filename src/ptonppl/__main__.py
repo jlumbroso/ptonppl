@@ -16,11 +16,14 @@ import ptonppl.control
 
 cli_opt_version = click.version_option(version=ptonppl.__version__)
 
-OutputFormatType = typing.Union[
-    typing.Literal["term"],
-    typing.Literal["json"],
-    typing.Literal["csv"],
-]
+try:
+    OutputFormatType = typing.Union[
+        typing.Literal["term"],
+        typing.Literal["json"],
+        typing.Literal["csv"],
+    ]
+except AttributeError:
+    OutputFormatType = str
 
 cli_opt_output_format = click.option(
     "--format", "-f",
