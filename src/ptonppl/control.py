@@ -24,9 +24,11 @@ def search(
     attempts = []
 
     if "@" in value:
-        attempts += [lambda val: ptonppl.ldap.search_one(ldap_field="mail", ldap_value=val)]
-        attempts += [lambda val: ptonppl.webdir.search_one(field="mail", value=val)]
-        attempts += [lambda val: ptonppl.ldapcmd.search_one(ldap_field="mail", ldap_value=val)]
+        # using `old_value` instead of `val` is intentional here
+        old_value = value
+        attempts += [lambda _: ptonppl.ldap.search_one(ldap_field="mail", ldap_value=old_value)]
+        attempts += [lambda _: ptonppl.webdir.search_one(field="mail", value=old_value)]
+        attempts += [lambda _: ptonppl.ldapcmd.search_one(ldap_field="mail", ldap_value=old_value)]
 
         # remove suffix of email, as it might match an alias or a NetID search
         value = value.split("@")[0]
@@ -51,6 +53,7 @@ def search(
     ptonppl.ldap.connect(reconnect=True)
 
     for f in attempts:
+        print(".", len(attempts))
         try:
             new_obj = f(value)
         except ValueError:
