@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ptonppl"
-version = "0.0.4"
+version = "0.0.5"
 description = "An integration package to lookup Princeton campus users."
 authors = ["Jérémie Lumbroso <lumbroso@cs.princeton.edu>"]
 license = "LGPL-3.0-or-later"
@@ -26,16 +26,16 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "^3.6"
-python-ldap = "^3.3.1"
-backoff = "^1.10.0"
-requests = "^2.24.0"
-bs4 = "^0.0.1"
-click = "^7.1.2"
-click_help_colors = "^0.8"
-click-option-group = "^0.5.1"
+python-ldap = "^3.3.1"          # Python Software Foundation License (Python style) (as of 2020-10-20)
+backoff = "^1.10.0"             # MIT License (as of 2020-09-29)
+requests = "^2.24.0"            # Apache Software License (Apache 2.0) (as of 2020-09-29)
+bs4 = "^0.0.1"                  # MIT License (as of 2020-10-20)
+click = "^7.1.2"                # BSD License (as of 2020-09-29)
+click_help_colors = "^0.8"      # MIT License (as of 2020-09-29)
+click-option-group = "^0.5.1"   # BSD License (as of 2020-09-29)
 
 [tool.poetry.dev-dependencies]
-pytest = "^5.2"
+pytest = "^5.2"                 # MIT License (as of 2020-09-29)
 
 [tool.poetry.scripts]
 ptonppl = "ptonppl.__main__:main"

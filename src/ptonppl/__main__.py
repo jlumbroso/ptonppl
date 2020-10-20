@@ -1,7 +1,5 @@
-import os
-import io
+
 import sys
-import textwrap
 import time
 import typing
 
@@ -12,6 +10,9 @@ import ptonppl
 import ptonppl.abstract
 import ptonppl.constants
 import ptonppl.control
+
+
+__author__ = "Jérémie Lumbroso <lumbroso@cs.princeton.edu>"
 
 
 cli_opt_version = click.version_option(version=ptonppl.__version__)

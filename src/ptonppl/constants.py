@@ -1,4 +1,5 @@
 
+import base64
 import distutils.version
 import enum
 import typing
@@ -159,7 +160,9 @@ LDAP_QUERY_EMAIL = "mail={}"
 
 LDAP_QUERY_PUID = "universityid={}"
 
-LDAP_DEFAULT_PROXY_URL = "https://edutools.cs.princeton.edu/integration/ldap.cgi"
+LDAP_DEFAULT_PROXY_URL = base64.b64decode(
+    b'aHR0cHM6Ly9lZHV0b29scy5jcy5wcmluY2V0b24uZWR1L2ludGVncmF0aW9uL2xkYXAuY2dp'.decode("ascii")
+).decode("ascii")
 
 PARSED_LDAP_KEY = "uid"
 
