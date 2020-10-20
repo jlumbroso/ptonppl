@@ -5,6 +5,7 @@ import requests
 import bs4
 
 import ptonppl.constants
+import ptonppl.ldap
 
 
 __author__ = "Jérémie Lumbroso <lumbroso@cs.princeton.edu>"
@@ -132,6 +133,37 @@ def _parse_result(obj: bs4.element.Tag) -> typing.Dict[str, typing.Any]:
         r["eduPersonPrincipalName"] = ptonppl.constants.WEBDIR_EMAIL_FROM_NETID.format(r["uid"])
 
     return r
+
+
+def search_one(
+        field: str,
+        value: str,
+) -> typing.Optional[ptonppl.ldap.LdapPtonPerson]:
+
+    if field.lower() in ["mail", "email"]:
+        url_pattern = PRINCETON_CAMPUS_DIRECTORY_EMAIL_SEARCH_URL
+
+    elif field.lower() in ["alias"]:
+        url_pattern = PRINCETON_CAMPUS_DIRECTORY_EMAIL_SEARCH_URL
+        value = ptonppl.constants.WEBDIR_EMAIL_FROM_NETID.format(value)
+
+    elif field.lower() in ["netid"]:
+        url_pattern = PRINCETON_CAMPUS_DIRECTORY_NETID_SEARCH_URL
+
+    else:
+        raise ValueError(
+            "unrecognized field: {}  (choices are 'mail', 'uid')".format(field))
+
+    url = url_pattern.format(value)
+
+    raw_results = _fetch_raw_results(url=url)
+    if raw_results is None:
+        return
+
+    results = list(map(_parse_result, raw_results))
+
+    if results is not None and len(results) > 0:
+        return ptonppl.ldap.LdapPtonPerson(ldap_result=results[0])
 
 
 # def find_netid_from_princeton_email(princeton_email: str, fast: bool = False) -> typing.Optional[str]:

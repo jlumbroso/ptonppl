@@ -17,7 +17,7 @@ __all__ = [
     "ATTRIBUTES_TOP_LEVEL",
     "ATTRIBUTES_PUBLIC",
     "ATTRIBUTES_FULL",
-    "ATTRIBUTE_MAPPING"
+    "LDAP_ATTRIBUTE_MAPPING"
 ]
 
 
@@ -88,6 +88,7 @@ LDAP_ATTRIBUTE_MAPPING = {
     "netid": "uid",
     "email": "mail",
     "alias": "mail",
+    "name": "cn",
 }
 
 
@@ -121,3 +122,30 @@ WEBDIR_FIELD_MAPPING = {
 
 
 WEBDIR_EMAIL_FROM_NETID = "{}@princeton.edu"
+
+
+# LDAP CMD constants
+
+ID_AUTHORIZED_CHARS = "abcdefghijklmnopqrstuvwxyz.0123456789_"
+
+LDAP_IGNORE_FIELDS = ["search", "result"]
+
+LDAP_CMD_PATTERN = "{{}} -x -h {host} -u -b "
+
+
+LDAP_CMD_PUID = ("""./ldapsearch -x -h ldap.princeton.edu -u """ + \
+                                    """-b o='Princeton University,c=US' "universityid={puid}" """ + \
+                                    """universityid cn uid eduPersonAffiliation pustatus ou""")
+
+LDAP_IGNORE_FIELDS = ["search", "result"]
+
+
+
+def run_cmd(cmd):
+    (status, output) = commands.getstatusoutput(cmd)
+    # If unsuspected problem, check here
+    # FIXME: add error correction
+    ## TO DEBUG:
+    ## print "Content-type: text/plain\n\n", (status, output)
+    ## if error 256 may be that the local copy of ldapsearch is outdated
+    return output

@@ -206,6 +206,7 @@ class LdapPtonPerson(ptonppl.abstract.AbstractPtonPerson):
         self._email = _grab_attr(self._original, ptonppl.constants.LDAP_ATTRIBUTE_MAPPING["email"])
         self._alias = _grab_attr(self._original, ptonppl.constants.LDAP_ATTRIBUTE_MAPPING["alias"])
         self._pustatus = _grab_attr(self._original, "pustatus")
+        self._alias = _grab_attr(self._original, ptonppl.constants.LDAP_ATTRIBUTE_MAPPING["name"])
 
         if self._email is None:
             val = _grab_attr(self._original, "eduPersonPrincipalName")
