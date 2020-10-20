@@ -53,7 +53,6 @@ def search(
     ptonppl.ldap.connect(reconnect=True)
 
     for f in attempts:
-        print(".", len(attempts))
         try:
             new_obj = f(value)
         except ValueError:
