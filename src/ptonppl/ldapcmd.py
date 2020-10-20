@@ -12,6 +12,7 @@ import ptonppl.ldap
 __author__ = "Jérémie Lumbroso <lumbroso@cs.princeton.edu>"
 
 __all__ = [
+    "search_one",
 ]
 
 
@@ -21,7 +22,7 @@ def _check_uid(s:str) -> typing.Optional[str]:
 
     s_l = s.lower()
     for c in s_l:
-        if not c in ptonppl.constants.ID_AUTHORIZED_CHARS:
+        if c not in ptonppl.constants.ID_AUTHORIZED_CHARS:
             return None
 
     return s_l
@@ -66,7 +67,7 @@ def _parse_ldapsearch_output(out:str) -> typing.Dict[str, typing.Dict[str, str]]
 
             elif field:
 
-                if not field in ptonppl.constants.LDAP_IGNORE_FIELDS:
+                if field not in ptonppl.constants.LDAP_IGNORE_FIELDS:
 
                     if field in current_record:
                         curr = current_record[field]
@@ -128,6 +129,11 @@ def _get_ldapsearch_output(
         ldap_value: str,
 ) -> typing.Optional[typing.Dict[str, str]]:
 
+    # escape bad characters
+    ldap_value = _check_uid(ldap_value)
+    if ldap_value is None:
+        return
+
     local_ret = _parse_ldapsearch_output(
         out=_get_ldapsearch_output_from_local_cmd(
             ldap_field=ldap_field,
@@ -144,7 +150,6 @@ def _get_ldapsearch_output(
 
     obj1 = list(local_ret.values())[0] if len(local_ret) > 0 else None
     obj2 = list(url_ret.values())[0] if len(url_ret) > 0 else None
-
 
     if obj1 is None:
         return obj2
@@ -167,104 +172,3 @@ def search_one(
 
     if ret is not None:
         return ptonppl.ldap.LdapPtonPerson(ldap_result=ret)
-
-
-# #!/usr/bin/python
-# import os
-# import cgi, cgitb
-# cgitb.enable()
-#
-# ##########################################################################
-# # OPERATIONAL PART
-#
-#
-# LDAP_KEY = "uid"
-# LDAP_CMD_NETID = ("""./ldapsearch -x -h ldap.princeton.edu -u """ + \
-#                   """-b o='Princeton University,c=US' "uid={uid}" """ + \
-#                   """universityid cn uid eduPersonAffiliation pustatus ou""")
-# LDAP_CMD_PUID = ("""./ldapsearch -x -h ldap.princeton.edu -u """ + \
-#                  """-b o='Princeton University,c=US' "universityid={puid}" """ + \
-#                  """universityid cn uid eduPersonAffiliation pustatus ou""")
-#
-# LDAP_IGNORE_FIELDS = ["search", "result"]
-#
-#
-#
-# def run_cmd(cmd):
-#     (status, output) = commands.getstatusoutput(cmd)
-#     # If unsuspected problem, check here
-#     # FIXME: add error correction
-#     ## TO DEBUG:
-#     ## print "Content-type: text/plain\n\n", (status, output)
-#     ## if error 256 may be that the local copy of ldapsearch is outdated
-#     return output
-#
-#
-#
-# def ldap_uid(s):
-#     uid = check_uid(s)
-#
-#     if uid:
-#         cmd = LDAP_CMD_NETID.format(uid=uid)
-#         output = run_cmd(cmd)
-#         ldap_info = parse_ldap(output)
-#
-#         if uid in ldap_info:
-#             return ldap_info[uid]
-#
-# def ldap_puid(s):
-#     puid = check_uid(s)
-#
-#     if puid:
-#         cmd = LDAP_CMD_PUID.format(puid=puid)
-#         output = run_cmd(cmd)
-#         ldap_info = parse_ldap(output)
-#
-#         if len(ldap_info.values()) > 0:
-#             return ldap_info.values()[0]
-#
-#
-#
-# ##########################################################################
-# # WEB SERVICE PART
-#
-# if __name__ == "__main__":
-#
-#     if 'REQUEST_METHOD' in os.environ:
-#
-#         import cgi, cgitb
-#         cgitb.enable()
-#
-#         form = cgi.FieldStorage()
-#         output = """{}"""
-#
-#         if form.has_key("netid"):
-#             netid = form["netid"].value
-#             ldap_info = ldap_uid(netid)
-#
-#             if ldap_info and "universityid" in ldap_info:
-#                 puid = ldap_info["universityid"]
-#                 output = """{ "netid" : "%s", "puid" : "%s", "cn": "%s", "type": "%s", "affiliation": "%s" }""" % (
-#                     ldap_info["uid"], ldap_info["universityid"], ldap_info["cn"],
-#                     ldap_info.get("pustatus", ""),
-#                     ldap_info.get("ou", "")
-#                     # ", ".join(ldap_info.get("edupersonaffiliation", []))
-#                 )
-#
-#         if form.has_key("puid"):
-#             puid = form["puid"].value
-#             ldap_info = ldap_puid(puid)
-#
-#             if ldap_info and "universityid" in ldap_info:
-#                 puid = ldap_info["universityid"]
-#                 output = """{ "netid" : "%s", "puid" : "%s", "cn": "%s", "type": "%s", "affiliation": "%s" }""" % (
-#                     ldap_info["uid"], ldap_info["universityid"], ldap_info["cn"],
-#                     ldap_info.get("pustatus", ""),
-#                     ldap_info.get("ou", "")
-#                     # ", ".join(ldap_info.get("edupersonaffiliation", []))
-#                 )
-#
-#         print "Content-type: text/plain"
-#         print ""
-#         print output
-#
