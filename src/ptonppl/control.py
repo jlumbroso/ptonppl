@@ -24,6 +24,7 @@ def search(
         # remove suffix of email, as it might match an alias or a NetID search
         value = value.split("@")[0]
 
+    # operations for NetID and alias
 
     attempts += [lambda val: ptonppl.ldap.search_one(ldap_field="uid", ldap_value=val)]
     attempts += [lambda val: ptonppl.ldap.search_one(
