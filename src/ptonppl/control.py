@@ -4,6 +4,7 @@ import typing
 import ptonppl.abstract
 import ptonppl.constants
 import ptonppl.ldap
+import ptonppl.ldapcmd
 import ptonppl.webdir
 
 
@@ -18,13 +19,20 @@ def search(
     if "@" in value:
         attempts += [lambda val: ptonppl.ldap.search_one(ldap_field="mail", ldap_value=val)]
         attempts += [lambda val: ptonppl.webdir.search_one(field="mail", value=val)]
+        attempts += [lambda val: ptonppl.ldapcmd.search_one(ldap_field="mail", ldap_value=val)]
 
-    else:
-        attempts += [lambda val: ptonppl.ldap.search_one(ldap_field="uid", ldap_value=val)]
-        attempts += [lambda val: ptonppl.ldap.search_one(
-            ldap_field="mail", ldap_value=ptonppl.constants.WEBDIR_EMAIL_FROM_NETID.format(val))]
-        attempts += [lambda val: ptonppl.webdir.search_one(field="uid", value=val)]
-        attempts += [lambda val: ptonppl.webdir.search_one(field="alias", value=val)]
+        # remove suffix of email, as it might match an alias or a NetID search
+        value = value.split("@")[0]
+
+
+    attempts += [lambda val: ptonppl.ldap.search_one(ldap_field="uid", ldap_value=val)]
+    attempts += [lambda val: ptonppl.ldap.search_one(
+        ldap_field="mail", ldap_value=ptonppl.constants.WEBDIR_EMAIL_FROM_NETID.format(val))]
+    attempts += [lambda val: ptonppl.webdir.search_one(field="uid", value=val)]
+    attempts += [lambda val: ptonppl.webdir.search_one(field="alias", value=val)]
+    attempts += [lambda val: ptonppl.ldapcmd.search_one(ldap_field="uid", ldap_value=val)]
+    attempts += [lambda val: ptonppl.ldapcmd.search_one(
+        ldap_field="mail", ldap_value=ptonppl.constants.WEBDIR_EMAIL_FROM_NETID.format(val))]
 
     ptonppl.ldap.connect(reconnect=True)
 

@@ -143,3 +143,6 @@ LDAP_QUERY_EMAIL = "mail={}"
 
 LDAP_QUERY_PUID = "universityid={}"
 
+LDAP_DEFAULT_PROXY_URL = "https://edutools.cs.princeton.edu/integration/ldap.cgi"
+
+PARSED_LDAP_KEY = "uid"
