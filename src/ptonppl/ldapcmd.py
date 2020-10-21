@@ -50,7 +50,7 @@ def _parse_ldapsearch_output(out:str) -> typing.Dict[str, typing.Dict[str, str]]
         if ":" in line:
             (field, value) = line.split(":", 1)
             field = field.strip().lower()
-            value = value.strip().lower()
+            value = value.strip()
 
             if field == "dn":
 
@@ -92,8 +92,11 @@ def _get_ldapsearch_output_from_proxy_url(
     if proxy_url is None:
         proxy_url = ptonppl.constants.LDAP_DEFAULT_PROXY_URL
 
-    r = requests.get(proxy_url, params={ldap_field: ldap_value})
+    # (note: producing the string directly, rather than letting
+    # requests escape a dict, because it also escapes the '@' and
+    # percent-encodes it)
 
+    r = requests.get(proxy_url, params="{}={}".format(ldap_field, ldap_value))
     if r.ok:
         return r.content.decode("ascii")
 
@@ -127,12 +130,14 @@ def _get_ldapsearch_output_from_local_cmd(
 def _get_ldapsearch_output(
         ldap_field: str,
         ldap_value: str,
+        uid_check: typing.Optional[bool] = None,
 ) -> typing.Optional[typing.Dict[str, str]]:
 
     # escape bad characters
-    ldap_value = _check_uid(ldap_value)
-    if ldap_value is None:
-        return
+    if uid_check is not None and uid_check:
+        ldap_value = _check_uid(ldap_value)
+        if ldap_value is None:
+            return
 
     local_ret = _parse_ldapsearch_output(
         out=_get_ldapsearch_output_from_local_cmd(

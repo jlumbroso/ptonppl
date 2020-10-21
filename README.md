@@ -24,17 +24,22 @@ $ pip install --user ptonppl
 ```
 $ ptonppl --help
 
-Usage: ptonppl [OPTIONS] QUERY...
+Usage: ptonppl [OPTIONS] [QUERY]...
 
   Lookup the directory information (PUID, NetID, email, name) of any
   Princeton campus person, using whichever of LDAP, web directory or proxy
   server is available.
 
 Options:
-  -f, --format FORMAT  Output format (e.g.: term, json, csv, ...)
-  -u, --unique         Filter out duplicate records from the output.
-  --version            Show the version and exit.
-  --help               Show this message and exit.
+  -t, --type TYPE               Output type (e.g.: term, json, csv, emails).
+  -u, --uniq / -nu, --not-uniq  Filter out duplicate records from the output.
+  -s, --stats                   Display statistics once processing is done.
+  -i, --input FILENAME          Read input from a file stream.
+  -f, --fields FIELDS           Fields to keep (e.g.: 'puid,netid,email').
+  -nh, --no-header / --header   Remove or include header in output.
+  --version                     Show the version and exit.
+  --help                        Show this message and exit.
+
 ```
 
 ## License

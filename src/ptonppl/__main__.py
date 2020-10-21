@@ -1,4 +1,5 @@
 
+import io
 import sys
 import time
 import typing
@@ -22,16 +23,10 @@ try:
         typing.Literal["term"],
         typing.Literal["json"],
         typing.Literal["csv"],
+        typing.Literal["emails"],
     ]
 except AttributeError:
     OutputFormatType = str
-
-cli_opt_output_format = click.option(
-    "--format", "-f",
-    type=click.Choice(["term", "json", "csv"], case_sensitive=False),
-    default="term", metavar="FORMAT",
-    help="Output format (e.g.: term, json, csv, ...)"
-)
 
 
 @click.command(
@@ -39,24 +34,77 @@ cli_opt_output_format = click.option(
     help_headers_color='yellow',
     help_options_color='bright_yellow'
 )
-@click.argument("query", nargs=-1, required=True)
-@cli_opt_output_format
+@click.argument("query", nargs=-1)
 @click.option(
-    "--unique", "-u",
+    "--type", "-t",
+    type=click.Choice(["term", "json", "csv", "emails"], case_sensitive=False),
+    default="term", metavar="TYPE",
+    help="Output type (e.g.: term, json, csv, emails)."
+)
+@click.option(
+    "--uniq/--not-uniq", "-u/-nu",
     is_flag=True, default=True,
     help="Filter out duplicate records from the output."
+)
+@click.option(
+    "--stats", "-s",
+    is_flag=True, default=False,
+    help="Display statistics once processing is done."
+)
+@click.option(
+    "--input", "-i",
+    type=click.File("r"),
+    help="Read input from a file stream."
+)
+@click.option(
+    "--fields", "-f",
+    type=str,
+    default=",".join(ptonppl.constants.OUTPUT_CSV_HEADER), metavar="FIELDS",
+    help="Fields to keep (e.g.: 'puid,netid,email')."
+)
+@click.option(
+    "--no-header/--header", "-nh",
+    is_flag=True, default=True,
+    help="Remove or include header in output."
 )
 @cli_opt_version
 def cli(
         query: typing.Tuple[str],
-        format: OutputFormatType,
-        unique: bool,
+        type: OutputFormatType,
+        uniq: bool,
+        stats: bool,
+        input: typing.Optional[io.TextIOWrapper],
+        fields: typing.Optional[str],
+        no_header: bool,
 ):
     """
     Lookup the directory information (PUID, NetID, email, name) of any
     Princeton campus person, using whichever of LDAP, web directory or
     proxy server is available.
     """
+
+    # Check for input file
+
+    if input is not None:
+        try:
+            input.seek(0)
+        except io.UnsupportedOperation:
+            pass
+
+        input_string = input.read()
+        input_tokens = input_string.split()
+
+        query = (*query, *input_tokens)
+
+    if fields is None:
+        fields = ptonppl.constants.OUTPUT_CSV_HEADER[:]
+
+    else:
+        fields = [
+            field
+            for field in fields.lower().split(",")
+            if field in ptonppl.constants.OUTPUT_CSV_HEADER
+        ]
 
     # Initial statistics
 
@@ -73,11 +121,11 @@ def cli(
     seen_netids: typing.Set[str] = set()
     results: typing.List[ptonppl.abstract.AbstractPtonPerson] = list()
 
-    if format == "json":
+    if type == "json":
         print("{")
 
-    elif format == "csv":
-        print(",".join(ptonppl.constants.OUTPUT_CSV_HEADER))
+    elif type == "csv" and not no_header:
+        print(",".join(fields))
 
     for q in query:
 
@@ -93,30 +141,49 @@ def cli(
 
         if obj.netid in seen_netids:
             count_duplicate += 1
-            if unique:
+            if uniq:
                 continue
 
         # save new results
         seen_netids.add(obj.netid)
         results.append(obj)
 
-        if format == "json":
+        if type == "json":
             print("    {},".format(obj.as_dict.__repr__()))
 
-        elif format == "csv":
+        elif type == "csv":
+            def quote_csv_cell(s):
+                if ',' in s:
+                    return '"{}"'.format(s.replace('"', '\"'))
+                return s
             print(",".join(
                 list(map(
-                    lambda field: '"{}"'.format(obj.as_dict.get(field, "").replace('"', '\"')),
-                    ptonppl.constants.OUTPUT_CSV_HEADER))))
+                    lambda field: quote_csv_cell(obj.as_dict.get(field, "")),
+                    fields))))
 
-        elif format == "term":
-            print(obj.common_name)
-            print("  {}".format(obj.puid))
-            print("  {}".format(obj.netid))
-            print("  {}".format(obj.email))
-            print()
+        elif type == "term":
+            pattern = "{}"
+            if not no_header:
+                print(obj.common_name)
+                pattern = "  {}"
+            if "netid" in fields:
+                print(pattern.format(obj.netid))
+            if "puid" in fields:
+                print(pattern.format(obj.puid))
+            if "email" in fields:
+                print(pattern.format(obj.email))
+            if not no_header:
+                print()
 
-    if format == "json":
+        elif type == "emails":
+            print(
+                '"{name}" <{email}>,'.format(
+                    name=obj.common_name,
+                    email=obj.email.lower(),
+                )
+            )
+
+    if type == "json":
         print("}")
 
     # End statistics
@@ -124,6 +191,26 @@ def cli(
     count_results = len(results)
     time_end: float = time.time()
     time_elapsed: float = time_end - time_start
+
+    if stats:
+        print(
+            "# counts: {success} success, {error} errors, {duplicate} duplicates, {results} output, {total} total".format(
+                success=count_success,
+                error=count_error,
+                duplicate=count_duplicate,
+                results=count_results,
+                total=count_total,
+            ),
+            file=sys.stderr,
+        )
+        print(
+            "# timing: {elapsed:.2}s".format(
+                elapsed=time_elapsed,
+                start=time_start,
+                stop=time_end,
+            ),
+            file=sys.stderr,
+        )
 
 
 def main():
