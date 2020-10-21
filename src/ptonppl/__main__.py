@@ -63,9 +63,9 @@ except AttributeError:
     help="Fields to keep (e.g.: 'puid,netid,email')."
 )
 @click.option(
-    "--no-header/--header", "-nh",
+    "--header/--no-header", " /-nh",
     is_flag=True, default=True,
-    help="Remove or include header in output."
+    help="Include or remove header in output."
 )
 @cli_opt_version
 def cli(
@@ -75,7 +75,7 @@ def cli(
         stats: bool,
         input: typing.Optional[io.TextIOWrapper],
         fields: typing.Optional[str],
-        no_header: bool,
+        header: bool,
 ):
     """
     Lookup the directory information (PUID, NetID, email, name) of any
@@ -124,7 +124,7 @@ def cli(
     if type == "json":
         print("{")
 
-    elif type == "csv" and not no_header:
+    elif type == "csv" and header:
         print(",".join(fields))
 
     for q in query:
@@ -163,7 +163,7 @@ def cli(
 
         elif type == "term":
             pattern = "{}"
-            if not no_header:
+            if header:
                 print(obj.common_name)
                 pattern = "  {}"
             if "netid" in fields:
@@ -172,7 +172,7 @@ def cli(
                 print(pattern.format(obj.puid))
             if "email" in fields:
                 print(pattern.format(obj.email))
-            if not no_header:
+            if header:
                 print()
 
         elif type == "emails":

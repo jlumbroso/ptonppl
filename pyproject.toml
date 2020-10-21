@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ptonppl"
-version = "1.0.0"
+version = "1.0.1"
 description = "An integration package to lookup Princeton campus users."
 authors = ["Jérémie Lumbroso <lumbroso@cs.princeton.edu>"]
 license = "LGPL-3.0-or-later"

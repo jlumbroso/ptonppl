@@ -36,7 +36,7 @@ Options:
   -s, --stats                   Display statistics once processing is done.
   -i, --input FILENAME          Read input from a file stream.
   -f, --fields FIELDS           Fields to keep (e.g.: 'puid,netid,email').
-  -nh, --no-header / --header   Remove or include header in output.
+  --header / -nh, --no-header   Include or remove header in output.
   --version                     Show the version and exit.
   --help                        Show this message and exit.
 
