@@ -1,11 +1,11 @@
 
 import typing
 
-import requests
 import bs4
 
 import ptonppl.constants
 import ptonppl.ldap
+import ptonppl.requests
 
 
 __author__ = "Jérémie Lumbroso <lumbroso@cs.princeton.edu>"
@@ -31,7 +31,7 @@ def _fetch_raw_results(url: str) -> typing.Optional[typing.List[bs4.element.Tag]
         return
 
     # make request
-    r = requests.get(url)
+    r = ptonppl.requests.get(url)
     if not r.ok:
         return
 

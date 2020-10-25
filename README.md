@@ -19,7 +19,7 @@ tools, such as `pip` or `pipenv`:
 $ pip install --user ptonppl
 ```
 
-## Help message
+## Help Message
 
 ```
 $ ptonppl --help

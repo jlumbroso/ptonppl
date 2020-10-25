@@ -2,11 +2,10 @@
 import typing
 import subprocess
 
-import requests
-
 import ptonppl.abstract
 import ptonppl.constants
 import ptonppl.ldap
+import ptonppl.requests
 
 
 __author__ = "Jérémie Lumbroso <lumbroso@cs.princeton.edu>"
@@ -96,7 +95,7 @@ def _get_ldapsearch_output_from_proxy_url(
     # requests escape a dict, because it also escapes the '@' and
     # percent-encodes it)
 
-    r = requests.get(proxy_url, params="{}={}".format(ldap_field, ldap_value))
+    r = ptonppl.requests.get(proxy_url, params="{}={}".format(ldap_field, ldap_value))
     if r.ok:
         return r.content.decode("ascii")
 
